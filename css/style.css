@@ -1,0 +1,14 @@
+
+
+
+.display {
+    
+    display: inline;
+    
+}
+
+#image1, #image2, #image3 {
+    border-image: solid 2px black;
+    max-height: 300px;
+    max-width: 300px;
+}
