@@ -43,7 +43,6 @@ function instantiateProducts() {
 
 }
 
-// Tracker object is instantiated once (?) on initial page load
 var tracker = {
     image1: document.getElementById("image1"),
     image2: document.getElementById('image2'),
@@ -51,16 +50,8 @@ var tracker = {
     displaySection: document.getElementById('display'),
     totalVotes: 0,
 
-    /*
-    option1: document.getElementsByClassName('option1')[0],
-    option2: document.getElementsByClassName('option2')[0],
-    option3: document.getElementsByClassName('option3')[0],
-    displaySection: document.getElementById('display'),
-    totalVotes: 0,
-    */
-
     // randomIndex method belonging to the tracker object
-    randomIndex: function (arr) { // arr currently = allProducts. NOTE: CHANGE THIS FUNCTION TO NOT INCLUDE THE PREVIOUS 3 SELECTED PRODUCTS.
+    randomIndex: function (arr) {
         return Math.floor(Math.random() * arr.length);
     },
 
@@ -73,12 +64,8 @@ var tracker = {
 
                 if (selectedIndices.indexOf(item) === -1) { // -1 means the currently selected product index is NOT already in the selected Indices array (for next display)
                     selectedIndices.push(item);
-
-
                 }
-
             }
-
         }
 
         previousIndices = selectedIndices.slice(0);
@@ -86,7 +73,7 @@ var tracker = {
         console.log('selectedIndices: ' + selectedIndices);
         return selectedIndices;
     },
-    // This method is first called by line 133, but subsequent calls come from vote click events (listern/handler)
+
     displayOptions: function () {  //
         var randomProducts = this.getIndices(allProducts); // Passes allProducts array to getIndices method 
         var index1 = randomProducts[0]; // sets index1 variable to the first randomProducts object returned at index [0]
@@ -102,7 +89,7 @@ var tracker = {
         product2.display_count += 1;
         product3.display_count += 1;
 
-        // TODO append the dom with the appropriate images
+        // append the dom with the appropriate images
         this.image1 = document.getElementById("image1").src = product1.file_name;
         this.image2 = document.getElementById("image2").src = product2.file_name;
         this.image3 = document.getElementById("image3").src = product3.file_name;
@@ -111,16 +98,6 @@ var tracker = {
         console.log('this.image2 = ' + this.image2);
         console.log('this.image3 = ' + this.image3);
 
-
-        // this.option1.innerHtml = product1.name // sets the innerText of the DOM class id="option1" to the name of product1
-        // this.option2.innerText = product2.name; // sets the innerText of the DOM class id="option1" to the nae of restaurant2
-        // this.option3.innerText = product3.name; // see above.
-
-
-        // sets the id of the DOM id="option1", "option2" and "option3" to the class to the id of product
-        // At this point, the DOM has been updated and script execution has stopped until user makes a choice with 'click' event.
-        // 'click' event trigger event listener on line 125, which calls the voteHandler() function, which calls the tallyVote function
-        // which in turn increments the vote count for the selected product and then calls the tracker.displayOptions() function all over again.
 
         this.image1 = product1.id;
         this.image2 = product2.id;
@@ -143,39 +120,16 @@ var tracker = {
             selectedProductId = this.image3;
         }
 
+        allProducts.forEach(function moo(product) {
 
-
-
-
-        // for loop
-        // for ( var i = 0; i < allRestaurants.length; i ++ ) {
-        //     var restaurant = allRestaurants[i];
-        //     if ( restaurant.id === id ) {
-        //         restaurant.votes += 1;
-        //     }
-        // }
-
-        // for each loop
-        allProducts.forEach(function moo(product) { // loops through allRestaurants array using each restaurant object
-            // and increments the selected restaurant's vote property by 1.
-            // Matches the selected restaurant's id to the related restaurant ID
-            // in the allRestaurants array to determine the correct restaurant
-            // to increment its 'votes' property.
-            // console.log('product.id: ' + product.id);
-            // console.log('id: ' + id);
             console.log('selectedProductId = ' + selectedProductId);
             if (product.id === selectedProductId) {
                 product.vote_count += 1;
             }
         });
 
-
         console.log('totalVotes = ' + totalVotes);
-        if (totalVotes > 2) { // If the total number of votes in the tracker object's 'votes' property is > 3, calls the
-            // tracker object's showResults() method (line 120 below), which removes the event listener
-            // from the page (no more voting) and writes to console the voting results using allRestaurants array
-            // which will display name, id and updated 'votes' totals for each product and stops code execution
-            // on line 131.
+        if (totalVotes > 25) {
             this.showResults();
         }
     },
@@ -183,10 +137,6 @@ var tracker = {
     showResults: function () {
         this.displaySection.removeEventListener('click', voteHandler);
         console.table(allProducts);
-        // for ( var i = 0; i < allRestaurants.length; i ++ ) {
-        //     var restaurant = allRestaurants[i];
-        //     console.log( restaurant.name + ': ' + restaurant.votes );
-        // }
     }
 }
 
@@ -195,8 +145,6 @@ var tracker = {
 tracker.displaySection.addEventListener('click', voteHandler);
 function voteHandler() {
     if (event.target.id !== 'display') {
-
-
         tracker.tallyVote(event.target.id);
         tracker.displayOptions();
     }
