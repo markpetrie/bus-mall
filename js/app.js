@@ -1,9 +1,43 @@
+'use strict'
+
+
+// var canvas = document.getElementById('chartsCanvas');
+
+// var spiritAirlines = {
+//     label: 'Spirit Airlines',
+//     data: [500, 100, 400, 100, 554, 333]
+// };
+
+// var americanAirlines = {
+//     label: 'American Airlines',
+//     data: [300, 200, 400, 100, 300]
+// };
+
+// var datasets = [americanAirlines, spiritAirlines];
+
+// var labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+
+// var flightPrices = new Chart(canvas, {
+//     type: 'line', data: { 
+//         labels: labels, datasets: datasets}, options: {} });
+
 
 // Global variables
 var allProducts = [];
 var previousIndices = [];
 var totalVotes = 0;
+var totalDisplayCount = 0;
 var selectedProductId;
+var productVoteCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var productDisplayCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var productVotePercentage = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+var productsToDisplay = 3;
+var allLabels = [];
+var allVotes = [];
+var allDisplays = [];
+var allPercentages = [];
+
+
 
 // CONSTRUCTOR & INSTANCES
 
@@ -14,6 +48,7 @@ function Product(name, id, file_name) {
     this.vote_count = 0;
     this.display_count = 0;
     this.eligible_flag = 'true';
+    this.vote_percentage = 0;
 
     allProducts.push(this);
 }
@@ -48,7 +83,8 @@ var tracker = {
     image2: document.getElementById('image2'),
     image3: document.getElementById('image3'),
     displaySection: document.getElementById('display'),
-    totalVotes: 0,
+    resultsSection: document.getElementById('results'),
+    // totalVotes: 0,
 
     // randomIndex method belonging to the tracker object
     randomIndex: function (arr) {
@@ -69,12 +105,11 @@ var tracker = {
         }
 
         previousIndices = selectedIndices.slice(0);
-        console.log('previousIndices: ' + previousIndices);
-        console.log('selectedIndices: ' + selectedIndices);
         return selectedIndices;
     },
 
     displayOptions: function () {  //
+        console.log('totalVotes: ' + totalVotes);
         var randomProducts = this.getIndices(allProducts); // Passes allProducts array to getIndices method 
         var index1 = randomProducts[0]; // sets index1 variable to the first randomProducts object returned at index [0]
         var index2 = randomProducts[1]; // sets index2 variable to the second randomProducts object returned at index [1] 
@@ -94,11 +129,6 @@ var tracker = {
         this.image2 = document.getElementById("image2").src = product2.file_name;
         this.image3 = document.getElementById("image3").src = product3.file_name;
 
-        console.log('this.image1 = ' + this.image1);
-        console.log('this.image2 = ' + this.image2);
-        console.log('this.image3 = ' + this.image3);
-
-
         this.image1 = product1.id;
         this.image2 = product2.id;
         this.image3 = product3.id;
@@ -106,6 +136,7 @@ var tracker = {
 
     tallyVote: function (id) {
         totalVotes += 1; // increments the tracker 'votes' property by 1 (it started at 0).
+        totalDisplayCount += productsToDisplay;
 
         var selectedProductId;
 
@@ -129,16 +160,104 @@ var tracker = {
         });
 
         console.log('totalVotes = ' + totalVotes);
-        if (totalVotes > 25) {
+        if (totalVotes > 24) {
             this.showResults();
         }
+    },
+
+    render: function () {
+        document.getElementById('title').innerHTML = "<h3>Market Analysis Summary</h3>";
+        // document.getElementById('title').style.backgroundColor = 'lightgrey';
+        document.getElementById('display').style.display = 'none';
+        document.getElementById('tableDiv').style.display = 'block';
+
+        for (var i = 0; i < allProducts.length; i++) {
+            var table = document.getElementById('results');
+            var row = document.createElement('tr');
+            var product = allProducts[i];
+            product.vote_percentage = Math.round(product.vote_count / totalVotes * 100);
+            console.log('totalVotes: ' + totalVotes);
+            console.log('productVotePercentage: ' + product.vote_percentage);
+            var productCell = document.createElement('td');
+            var voteCountCell = document.createElement('td');
+            var displayCountCell = document.createElement('td');
+            var votePercentage = document.createElement('td');
+            productCell.innerText = product.name;
+            voteCountCell.innerText = product.vote_count;
+            displayCountCell.innerText = product.display_count;
+            votePercentage.innerText = product.vote_percentage + '%';
+            row.appendChild(productCell);
+            row.appendChild(voteCountCell);
+            row.appendChild(displayCountCell);
+            row.appendChild(votePercentage);
+            table.appendChild(row);
+
+        }
+
+        var table = document.getElementById('results');
+        var row = document.createElement('tr');
+        var totalLabel = document.createElement('td');
+        var totalVoteCount = document.createElement('td');
+        var totalProductsDisplayed = document.createElement('td');
+        var totalVotePercentage = document.createElement('td');
+        totalVoteCount.innerText = totalVotes;
+        totalProductsDisplayed.innerText = totalDisplayCount;
+        totalVotePercentage.innerText = '100%';
+        totalLabel.innerText = "Totals:";
+        row.appendChild(totalLabel);
+        row.appendChild(totalVoteCount);
+        row.appendChild(totalProductsDisplayed);
+        row.appendChild(totalVotePercentage);
+        table.appendChild(row);
+
+
+        // chart.js implementation
+
+        allProducts.forEach(function chart(product) {
+            allLabels.push(product.name);
+            console.log(allLabels);
+            allVotes.push(product.vote_count);
+            allDisplays.push(product.display_count);
+            allPercentages.push(product.vote_percentage);
+        }
+        )
+        var ctx = document.getElementById("voteChart");
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: allLabels,
+                datasets: [{
+                    label: '# of Votes',
+                    data: allVotes,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                    ],
+                    borderColor: [
+                        'rgba(255,99,132,1)',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
     },
 
     showResults: function () {
         this.displaySection.removeEventListener('click', voteHandler);
         console.table(allProducts);
+        this.render();
     }
 }
+
 
 //****EVENT LISTENERS****//
 
@@ -152,9 +271,16 @@ function voteHandler() {
 
 
 // Call instantiateProducts function. This is the initial function call on initial page load only.
+
+document.getElementById("tableDiv").style.display = "none";
 instantiateProducts();
 
 // Call displayOptions() method of the tracker object. This is the initial function call on initial page load only.
 // Subsequent calls are made from event listener/handler.
+
+
 tracker.displayOptions();
+
+
+
 
