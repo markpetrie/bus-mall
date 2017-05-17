@@ -1,0 +1,42 @@
+
+html {
+    font-family: Roboto, sans-serif, helvetica;
+}
+
+.display {
+    
+    display: block;
+    
+}
+
+#image1, #image2, #image3 {
+    max-height: 300px;
+    max-width: 300px;
+}
+
+td,
+th {
+  padding: 5px 8px;
+  text-align: center;
+  border-bottom: 1px solid #E1E1E1; }
+
+td:first-child {
+    text-align: left;
+}
+
+tr:last-child {
+      background-color: lightgrey;
+  }
+
+#title {
+      display: border-box;
+      min-height: 50px;
+      width: 100%;
+      text-align: center;
+      }
+
+#tableDiv {
+
+    font-size: 9px;
+}
+  
