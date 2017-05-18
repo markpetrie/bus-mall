@@ -234,84 +234,84 @@ var tracker = {
 //****EVENT LISTENERS****//
 
 // handle welcome form submission
-if (document.getElementById('beginSurvey')) {
+// var pageTitle = document.title;
+// if (pageTitle != 'Welcome') {
 
-var welcomeForm = document.getElementById('beginSurvey');
-welcomeForm.addEventListener('submit', welcomeHandler);
+// }
 
-function welcomeHandler(event) {
-    var form = event.target; 
-    var name = form.name.value; 
+    (function welcome() {
+    var form = document.getElementById('elementsForm');
+    var name = form.name.value;     
     var ageBracket = form.ageBracket.value;
-    var incomeBracket = form.incomeBracket.value; 
+    var incomeBracket = form.incomeBracket.value;
     var newUserId = performance.now(); // generate unique id for new user 
     activeUserId = newUserId; // set activeUser to new user id 
-    var newUserObj = { userID: newUserId, userName: name, userAgeBracket: ageBracket, userIncomeBracket: incomeBracket}
-    localStorage.setItem('newUserObj', JSON.stringify(submissions));
-}; 
+    var newUserObj = { userID: newUserId, userName: name, userAgeBracket: ageBracket, userIncomeBracket: incomeBracket };
+    localStorage.setItem('newUserObj', JSON.stringify(newUserObj));
+    // var loadSurveyPage = function () {
+    //     window.location.href = "index.html"
+    // }
 
-}
+    // handle individual product selection submission
 
+    // if (pageTitle = 'Product Catalog Survey') {
 
-// ------------------------------------------------------------------- //
+    //     var submissionForm = document.getElementById('display');
+    //     submissionForm.addEventListener('submit', submitHandler);
 
-// handle individual product selection submission
+    //     function submitHandler(event) {
+    //         event.preventDefault();
 
-// NEXT STEP IS TO REFACTOR BELOW TO HANDLE LOCAL STORAGE OF PAGE LOADS
-// --- THINK about making localStorage redundant wtih in-memory variables that already exist.
-// --- LIKELY need to take pieces of code below and move into original voteHandler functions..
+    //         var form = event.target;
+    //         var name = form.name.value;
 
-// var submissionForm = document.getElementById('elementsForm');
-// submissionForm.addEventListener('submit', submitHandler);
+    //         var submission = { name: name };
+    // addToList(submission);
+    // saveToLocal(submission);
 
-// function submitHandler(event) {
-//     event.preventDefault();
-
-//     var form = event.target;
-//     var name = form.name.value;
-
-//     var submission = { name: name };
-//     addToList(submission);
-//     saveToLocal(submission);
-
-//     form.reset();
-// }
-
-// function addToList(submission) {
-//     var list = document.querySelector('ul');
-//     var newLi = document.createElement('li');
-
-//     newLi.innerHTML = submission.name + " &#x1F60D;'s " + submission.ele;
-//     list.appendChild(newLi);
-// }
-
-// function saveToLocal(submission) {
-//     submissions.push(submission);
-//     localStorage.setItem('submissions', JSON.stringify(submissions));
-// }
+    // form.reset();
 
 
-// ----------------------------------------------------------------- //
-
-tracker.displaySection.addEventListener('click', voteHandler);
-function voteHandler() {
-    if (event.target.id !== 'display') {
-        tracker.tallyVote(event.target.id);
-        tracker.displayOptions();
-    }
-}
 
 
-// Call instantiateProducts function. This is the initial function call on initial page load only.
+    // function addToList(submission) {
+    //     var list = document.querySelector('ul');
+    //     var newLi = document.createElement('li');
+
+    //     newLi.innerHTML = submission.name + " &#x1F60D;'s " + submission.ele;
+    //     list.appendChild(newLi);
+    // }
+
+    // function saveToLocal(submission) {
+    //     submissions.push(submission);
+    //     localStorage.setItem('submissions', JSON.stringify(submissions));
+    // }
+
+
+    // ----------------------------------------------------------------- //
 
 document.getElementById("tableDiv").style.display = "none";
-instantiateProducts();
+    instantiateProducts();
 
-// Call displayOptions() method of the tracker object. This is the initial function call on initial page load only.
-// Subsequent calls are made from event listener/handler.
+// }
+    tracker.displaySection.addEventListener('click', voteHandler);
+    function voteHandler() {
+         if (event.target.id !== 'display') {
+             tracker.tallyVote(event.target.id);
+             tracker.displayOptions();
+      } 
+     }
 
 
-tracker.displayOptions();
+    // Call instantiateProducts function. This is the initial function call on initial page load only.
+
+    
+
+    // Call displayOptions() method of the tracker object. This is the initial function call on initial page load only.
+    // Subsequent calls are made from event listener/handler.
+
+
+    tracker.displayOptions();
 
 
 
