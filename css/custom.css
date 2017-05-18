@@ -9,6 +9,10 @@ html {
     
 }
 
+#elementsForm {
+    border: solid 2px darkgrey;
+}
+
 #image1, #image2, #image3 {
     max-height: 300px;
     max-width: 300px;
