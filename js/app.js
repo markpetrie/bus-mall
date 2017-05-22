@@ -2,8 +2,8 @@
 
 var allProducts = [];
 var previousIndices = [];
-var totalVotes = 0;
-var totalDisplayCount = 0;
+// var totalVotes = 0;
+// var totalDisplayCount = 0;
 var selectedProductId;
 var productVoteCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var productDisplayCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -14,6 +14,7 @@ var allVotes = [];
 var allDisplays = [];
 var allPercentages = [];
 var activeUser = 0;
+var currentSessionVoteCount = 0;
 
 
 // CONSTRUCTOR & INSTANCES
@@ -22,16 +23,18 @@ function Product(name, id, file_name) {
     this.name = name;
     this.id = id;
     this.file_name = file_name;
-    this.vote_count = 0;
-    this.display_count = 0;
-    this.eligible_flag = 'true';
-    this.vote_percentage = 0;
+    this.voteCount = 0;
+    this.displayCount = 0;
+    this.votePercentage = 0;
 
     allProducts.push(this);
+    localStorage.setItem('allProductsStr', JSON.stringify(allProducts));
+
 }
 
 // Instantiate products function declaration
 function instantiateProducts() {
+
     var bag = new Product('bag', 'bag_1', 'img/bag.jpg', 0, 0, 'true');
     var banana = new Product('banana', 'banana_1', 'img/banana.jpg', 0, 0, 'true');
     var bathroom = new Product('bathroom', 'bathroom_1', 'img/bathroom.jpg', 0, 0, 'true');
@@ -52,8 +55,12 @@ function instantiateProducts() {
     var usb = new Product('usb', 'usb_1', 'img/usb.gif', 0, 0, 'true');
     var water_can = new Product('water_can', 'water_can_1', 'img/water_can.jpg', 0, 0, 'true');
     var wine_glass = new Product('wine_glass', 'wine_glass_1', 'img/wine_glass.jpg', 0, 0, 'true');
-
 }
+
+function resetSessionVoteCounter() {
+    currentSessionVoteCount = 0;
+}
+
 
 var tracker = {
     image1: document.getElementById("image1"),
@@ -86,7 +93,7 @@ var tracker = {
     },
 
     displayOptions: function () {  //
-        console.log('totalVotes: ' + totalVotes);
+
         var randomProducts = this.getIndices(allProducts); // Passes allProducts array to getIndices method 
         var index1 = randomProducts[0]; // sets index1 variable to the first randomProducts object returned at index [0]
         var index2 = randomProducts[1]; // sets index2 variable to the second randomProducts object returned at index [1] 
@@ -97,9 +104,16 @@ var tracker = {
         var product2 = allProducts[index2];
         var product3 = allProducts[index3];
 
-        product1.display_count += 1;
-        product2.display_count += 1;
-        product3.display_count += 1;
+        if (currentSessionVoteCount > 23 ) {
+
+        } else {
+            
+            product1.displayCount += 1;
+            product2.displayCount += 1;
+            product3.displayCount += 1;
+            localStorage.setItem('allProductsStr', JSON.stringify(allProducts));
+
+        }
 
         // append the dom with the appropriate images
         this.image1 = document.getElementById("image1").src = product1.file_name;
@@ -111,9 +125,9 @@ var tracker = {
         this.image3 = product3.id;
     },
 
-    tallyVote: function (id) {
-        totalVotes += 1; // increments the tracker 'votes' property by 1 (it started at 0).
-        totalDisplayCount += productsToDisplay;
+    tallyVote: function (id, index1, index2, index3) {
+        // totalVotes += 1; // increments the tracker 'votes' property by 1 (it started at 0).
+        // totalDisplayCount += productsToDisplay;
 
         var selectedProductId;
 
@@ -132,17 +146,40 @@ var tracker = {
 
             console.log('selectedProductId = ' + selectedProductId);
             if (product.id === selectedProductId) {
-                product.vote_count += 1;
+                product.voteCount += 1;
+                currentSessionVoteCount += 1;
             }
         });
 
-        console.log('totalVotes = ' + totalVotes);
-        if (totalVotes > 24) {
-            this.showResults();
+        // console.log('totalVotes = ' + totalVotes);
+        localStorage.setItem('allProductsStr', JSON.stringify(allProducts));
+
+        var totalVotes = 0;
+        var totalDisplayCount = 0;
+
+        for (var i = 0; i < allProducts.length; i++) {
+            // var table = document.getElementById('results');
+            // var row = document.createElement('tr');
+            var product = allProducts[i];
+            totalVotes = totalVotes + product.voteCount;
+            console.log('total votes: ' + totalVotes);
+            totalDisplayCount = totalDisplayCount + product.displayCount;
+            console.log('totalDisplayCount ' + totalDisplayCount);
+            console.log('currentSessionVoteCount: ' + currentSessionVoteCount);
+
+            localStorage.setItem('allProductsStr', JSON.stringify(allProducts));
+
+
+            if (currentSessionVoteCount > 24) {
+                resetSessionVoteCounter();
+                this.render(totalVotes, totalDisplayCount);
+            }
         }
     },
 
-    render: function () {
+    render: function (totalVotes, totalDisplayCount) {
+
+        this.displaySection.removeEventListener('click', voteHandler);
         document.getElementById('title').innerHTML = "<h3>Market Analysis Summary</h3>";
         // document.getElementById('title').style.backgroundColor = 'lightgrey';
         document.getElementById('display').style.display = 'none';
@@ -152,23 +189,20 @@ var tracker = {
             var table = document.getElementById('results');
             var row = document.createElement('tr');
             var product = allProducts[i];
-            product.vote_percentage = Math.round(product.vote_count / totalVotes * 100);
-            console.log('totalVotes: ' + totalVotes);
-            console.log('productVotePercentage: ' + product.vote_percentage);
+            product.votePercentage = Math.round(product.voteCount / totalVotes * 100);
             var productCell = document.createElement('td');
             var voteCountCell = document.createElement('td');
             var displayCountCell = document.createElement('td');
             var votePercentage = document.createElement('td');
             productCell.innerText = product.name;
-            voteCountCell.innerText = product.vote_count;
-            displayCountCell.innerText = product.display_count;
-            votePercentage.innerText = product.vote_percentage + '%';
+            voteCountCell.innerText = product.voteCount;
+            displayCountCell.innerText = product.displayCount;
+            votePercentage.innerText = product.votePercentage + '%';
             row.appendChild(productCell);
             row.appendChild(voteCountCell);
             row.appendChild(displayCountCell);
             row.appendChild(votePercentage);
             table.appendChild(row);
-
         }
 
         var table = document.getElementById('results');
@@ -193,9 +227,9 @@ var tracker = {
         allProducts.forEach(function chart(product) {
             allLabels.push(product.name);
             console.log(allLabels);
-            allVotes.push(product.vote_count);
-            allDisplays.push(product.display_count);
-            allPercentages.push(product.vote_percentage);
+            allVotes.push(product.voteCount);
+            allDisplays.push(product.displayCount);
+            allPercentages.push(product.votePercentage);
         }
         )
         var ctx = document.getElementById("voteChart");
@@ -221,79 +255,11 @@ var tracker = {
             }
         });
 
-    },
-
-    showResults: function () {
-        this.displaySection.removeEventListener('click', voteHandler);
-        console.table(allProducts);
-        this.render();
     }
 }
 
-
-//****EVENT LISTENERS****//
-
-// handle welcome form submission
-if (document.getElementById('beginSurvey')) {
-
-var welcomeForm = document.getElementById('beginSurvey');
-welcomeForm.addEventListener('submit', welcomeHandler);
-
-function welcomeHandler(event) {
-    var form = event.target; 
-    var name = form.name.value; 
-    var ageBracket = form.ageBracket.value;
-    var incomeBracket = form.incomeBracket.value; 
-    var newUserId = performance.now(); // generate unique id for new user 
-    activeUserId = newUserId; // set activeUser to new user id 
-    var newUserObj = { userID: newUserId, userName: name, userAgeBracket: ageBracket, userIncomeBracket: incomeBracket}
-    localStorage.setItem('newUserObj', JSON.stringify(submissions));
-}; 
-
-}
-
-
-// ------------------------------------------------------------------- //
-
-// handle individual product selection submission
-
-// NEXT STEP IS TO REFACTOR BELOW TO HANDLE LOCAL STORAGE OF PAGE LOADS
-// --- THINK about making localStorage redundant wtih in-memory variables that already exist.
-// --- LIKELY need to take pieces of code below and move into original voteHandler functions..
-
-// var submissionForm = document.getElementById('elementsForm');
-// submissionForm.addEventListener('submit', submitHandler);
-
-// function submitHandler(event) {
-//     event.preventDefault();
-
-//     var form = event.target;
-//     var name = form.name.value;
-
-//     var submission = { name: name };
-//     addToList(submission);
-//     saveToLocal(submission);
-
-//     form.reset();
-// }
-
-// function addToList(submission) {
-//     var list = document.querySelector('ul');
-//     var newLi = document.createElement('li');
-
-//     newLi.innerHTML = submission.name + " &#x1F60D;'s " + submission.ele;
-//     list.appendChild(newLi);
-// }
-
-// function saveToLocal(submission) {
-//     submissions.push(submission);
-//     localStorage.setItem('submissions', JSON.stringify(submissions));
-// }
-
-
-// ----------------------------------------------------------------- //
-
 tracker.displaySection.addEventListener('click', voteHandler);
+
 function voteHandler() {
     if (event.target.id !== 'display') {
         tracker.tallyVote(event.target.id);
@@ -302,14 +268,23 @@ function voteHandler() {
 }
 
 
+
 // Call instantiateProducts function. This is the initial function call on initial page load only.
 
 document.getElementById("tableDiv").style.display = "none";
-instantiateProducts();
 
-// Call displayOptions() method of the tracker object. This is the initial function call on initial page load only.
-// Subsequent calls are made from event listener/handler.
+var allProductsStr = localStorage.getItem('allProductsStr');
 
+if (allProductsStr) {
+    allProducts = JSON.parse(allProductsStr);
+    resetSessionVoteCounter();
+
+} else {
+    resetSessionVoteCounter();
+    instantiateProducts();
+
+
+}
 
 tracker.displayOptions();
 
